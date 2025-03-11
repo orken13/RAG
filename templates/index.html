@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Chatbot</title>
+</head>
+<body>
+    <h1>PDF Yükle & Soru Sor</h1>
+
+    <h2>1. PDF Yükle</h2>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="file" name="file">
+        <button type="button" onclick="uploadPDF()">Yükle</button>
+    </form>
+    <p id="upload-message"></p>
+
+    <h2>2. PDF'ten Soru Sor</h2>
+    <input type="text" id="question" placeholder="Sorunuzu yazın...">
+    <button type="button" onclick="askQuestion()">Sor</button>
+    <p id="answer"></p>
+
+    <script>
+        function uploadPDF() {
+            var formData = new FormData();
+            var fileInput = document.getElementById("file");
+            formData.append("file", fileInput.files[0]);
+
+            fetch("/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => document.getElementById("upload-message").innerText = data.message)
+            .catch(error => console.error("Hata:", error));
+        }
+
+        function askQuestion() {
+            var question = document.getElementById("question").value;
+            fetch("/ask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ "question": question })
+            })
+            .then(response => response.json())
+            .then(data => document.getElementById("answer").innerText = data.answer.join(" "))
+            .catch(error => console.error("Hata:", error));
+        }
+    </script>
+</body>
+</html>
